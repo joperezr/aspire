@@ -22,6 +22,10 @@
       "_justification": "This is a fake password, used in integration, and other tests."
     },
     {
+      "placeholder": "4DfZJfojd4Ef08uoboJ2V+RMpF20yGEbw2pDouefjmcTmAVxE6wPkbLN03u/bAElCm4Y/ndJ9YruH3Q5pFuSLQ==",
+      "_justification": "This isn't a real secret, it's used in one of the playground applications as a hash of a fake password for testing purposes."
+    },
+    {
       "placeholder": "thisIsAFakeSecret",
       "_justification": "This isn't a real secret, it's used in one of the playground applications for testing purposes."
     },
