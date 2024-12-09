@@ -77,6 +77,10 @@
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>9cb3b725e3ad2b57ddc9fb2dd48d2d170563a8f5</Sha>
     </Dependency>
+    <Dependency Name="System.Runtime.Caching" Version="8.0.1">
+      <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
+      <Sha>81cabf2857a01351e5ab578947c7403a5b128ad1</Sha>
+    </Dependency>
     <Dependency Name="Microsoft.NET.Runtime.WorkloadTesting.Internal" Version="9.0.0-preview.5.24272.3">
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>b83186a969946f61c71ad0da034936fac9947752</Sha>

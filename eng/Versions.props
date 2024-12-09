@@ -68,6 +68,7 @@
     <!-- System dependencies -->
     <SystemFormatsAsn1PackageVersion>8.0.1</SystemFormatsAsn1PackageVersion>
     <SystemTextJsonPackageVersion>8.0.5</SystemTextJsonPackageVersion>
+    <SystemRuntimeCachingPackageVersion>8.0.1</SystemRuntimeCachingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <!-- Runtime -->
