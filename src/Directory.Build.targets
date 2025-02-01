@@ -1,7 +1,16 @@
 <Project>
   <PropertyGroup>
     <DisablePackageBaselineValidation Condition="'$(DisablePackageBaselineValidation)' == '' And '$(SuppressFinalPackageVersion)' == 'true'">true</DisablePackageBaselineValidation>
+    <GenAPITargetPath>$(MSBuildProjectDirectory)/api/$(AssemblyName).cs</GenAPITargetPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="$(GenAPITargetPath)" />
+  </ItemGroup>
+
+  <Target Name="CreateGenAPITargetPathFolder" BeforeTargets="GenAPIGenerateReferenceAssemblySource">
+    <MakeDir Directories="$(MSBuildProjectDirectory)/api" Condition="!Exists('$(MSBuildProjectDirectory)/api')" />
+  </Target>
 
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
   <Import Project="$(MSBuildThisFileDirectory)/../eng/ProjectStaging.targets" />

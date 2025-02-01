@@ -1,0 +1,25 @@
+name: GenerateAPIDiffs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-and-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore and build
+        run: |
+          for proj in $(find src -name '*.csproj'); do
+            ./dotnet.sh build "$proj" --configuration Release --no-incremental /t:Build;GenAPIGenerateReferenceAssemblySource
+          done
+
+      - name: Create or update pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-api-diffs
+          base: main
+          title: "Update API Diffs"
+          body: "Auto-generated update to the API surface."
