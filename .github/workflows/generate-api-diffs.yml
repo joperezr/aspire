@@ -12,7 +12,7 @@ jobs:
       - name: Restore and build
         run: |
           for proj in $(find src -name '*.csproj'); do
-            ./dotnet.sh build "$proj" --configuration Release --no-incremental /t:Build;GenAPIGenerateReferenceAssemblySource
+            export CI=false && ./dotnet.sh build "$proj" --configuration Release --no-incremental /t:Build;GenAPIGenerateReferenceAssemblySource
           done
 
       - name: Create or update pull request
