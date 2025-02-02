@@ -12,26 +12,157 @@ namespace Aspire.Hosting
     {
         public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> AddAzureServiceBus(this IDistributedApplicationBuilder builder, string name) { throw null; }
 
+        [System.Obsolete("This method is obsolete and will be removed in a future version. Use WithQueue instead to add an Azure Service Bus Queue.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> AddQueue(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string name) { throw null; }
 
+        [System.Obsolete("This method is obsolete and will be removed in a future version. Use WithTopic instead to add an Azure Service Bus Subscription to a Topic.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> AddSubscription(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string topicName, string subscriptionName) { throw null; }
 
+        [System.Obsolete("This method is obsolete and will be removed in a future version. Use WithTopic instead to add an Azure Service Bus Topic and Subscriptions.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> AddTopic(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string name, string[] subscriptions) { throw null; }
 
+        [System.Obsolete("This method is obsolete and will be removed in a future version. Use WithTopic instead to add an Azure Service Bus Topic.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> AddTopic(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string name) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> ConfigureEmulator(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> builder, System.Action<System.Text.Json.Nodes.JsonNode> configJson) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> RunAsEmulator(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, System.Action<ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource>>? configureContainer = null) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> WithConfigurationFile(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> builder, string path) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> WithHostPort(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusEmulatorResource> builder, int? port) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> WithQueue(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string name, System.Action<Azure.ServiceBus.ServiceBusQueue>? configure = null) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> WithTopic(this ApplicationModel.IResourceBuilder<Azure.AzureServiceBusResource> builder, string name, System.Action<Azure.ServiceBus.ServiceBusTopic>? configure = null) { throw null; }
     }
 }
 
 namespace Aspire.Hosting.Azure
 {
-    public partial class AzureServiceBusResource : AzureProvisioningResource, ApplicationModel.IResourceWithConnectionString, ApplicationModel.IResource, ApplicationModel.IManifestExpressionProvider, ApplicationModel.IValueProvider, ApplicationModel.IValueWithReferences, IResourceWithAzureFunctionsConfig
+    public partial class AzureServiceBusEmulatorResource : ApplicationModel.ContainerResource, ApplicationModel.IResource
+    {
+        public AzureServiceBusEmulatorResource(AzureServiceBusResource innerResource) : base(default!, default) { }
+
+        public override ApplicationModel.ResourceAnnotationCollection Annotations { get { throw null; } }
+    }
+
+    public partial class AzureServiceBusResource : AzureProvisioningResource, ApplicationModel.IResourceWithConnectionString, ApplicationModel.IResource, ApplicationModel.IManifestExpressionProvider, ApplicationModel.IValueProvider, ApplicationModel.IValueWithReferences, IResourceWithAzureFunctionsConfig, ApplicationModel.IResourceWithEndpoints
     {
         public AzureServiceBusResource(string name, System.Action<AzureResourceInfrastructure> configureInfrastructure) : base(default!, default!) { }
 
         public ApplicationModel.ReferenceExpression ConnectionStringExpression { get { throw null; } }
 
+        public bool IsEmulator { get { throw null; } }
+
         public BicepOutputReference ServiceBusEndpoint { get { throw null; } }
 
         void IResourceWithAzureFunctionsConfig.ApplyAzureFunctionsConfiguration(System.Collections.Generic.IDictionary<string, object> target, string connectionName) { }
+    }
+}
+
+namespace Aspire.Hosting.Azure.ServiceBus
+{
+    public partial class ServiceBusCorrelationFilter
+    {
+        public string? ContentType { get { throw null; } set { } }
+
+        public string? CorrelationId { get { throw null; } set { } }
+
+        public string? MessageId { get { throw null; } set { } }
+
+        public System.Collections.Generic.Dictionary<string, object> Properties { get { throw null; } set { } }
+
+        public string? ReplyTo { get { throw null; } set { } }
+
+        public string? ReplyToSessionId { get { throw null; } set { } }
+
+        public bool? RequiresPreprocessing { get { throw null; } set { } }
+
+        public string? SendTo { get { throw null; } set { } }
+
+        public string? SessionId { get { throw null; } set { } }
+
+        public string? Subject { get { throw null; } set { } }
+    }
+
+    public enum ServiceBusFilterType
+    {
+        SqlFilter = 0,
+        CorrelationFilter = 1
+    }
+
+    public partial class ServiceBusQueue
+    {
+        public ServiceBusQueue(string name) { }
+
+        public bool? DeadLetteringOnMessageExpiration { get { throw null; } set { } }
+
+        public System.TimeSpan? DefaultMessageTimeToLive { get { throw null; } set { } }
+
+        public System.TimeSpan? DuplicateDetectionHistoryTimeWindow { get { throw null; } set { } }
+
+        public string? ForwardDeadLetteredMessagesTo { get { throw null; } set { } }
+
+        public string? ForwardTo { get { throw null; } set { } }
+
+        public System.TimeSpan? LockDuration { get { throw null; } set { } }
+
+        public int? MaxDeliveryCount { get { throw null; } set { } }
+
+        public string Name { get { throw null; } set { } }
+
+        public bool? RequiresDuplicateDetection { get { throw null; } set { } }
+
+        public bool? RequiresSession { get { throw null; } set { } }
+    }
+
+    public partial class ServiceBusRule
+    {
+        public ServiceBusRule(string name) { }
+
+        public ServiceBusCorrelationFilter CorrelationFilter { get { throw null; } set { } }
+
+        public ServiceBusFilterType FilterType { get { throw null; } set { } }
+
+        public string Name { get { throw null; } set { } }
+    }
+
+    public partial class ServiceBusSubscription
+    {
+        public ServiceBusSubscription(string name) { }
+
+        public bool? DeadLetteringOnMessageExpiration { get { throw null; } set { } }
+
+        public System.TimeSpan? DefaultMessageTimeToLive { get { throw null; } set { } }
+
+        public string? ForwardDeadLetteredMessagesTo { get { throw null; } set { } }
+
+        public string? ForwardTo { get { throw null; } set { } }
+
+        public System.TimeSpan? LockDuration { get { throw null; } set { } }
+
+        public int? MaxDeliveryCount { get { throw null; } set { } }
+
+        public string Name { get { throw null; } set { } }
+
+        public bool? RequiresSession { get { throw null; } set { } }
+
+        public System.Collections.Generic.List<ServiceBusRule> Rules { get { throw null; } }
+    }
+
+    public partial class ServiceBusTopic
+    {
+        public ServiceBusTopic(string name) { }
+
+        public System.TimeSpan? DefaultMessageTimeToLive { get { throw null; } set { } }
+
+        public System.TimeSpan? DuplicateDetectionHistoryTimeWindow { get { throw null; } set { } }
+
+        public string Name { get { throw null; } set { } }
+
+        public bool? RequiresDuplicateDetection { get { throw null; } set { } }
+
+        public System.Collections.Generic.List<ServiceBusSubscription> Subscriptions { get { throw null; } }
     }
 }

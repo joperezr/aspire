@@ -12,15 +12,25 @@ namespace Aspire.Hosting
     {
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> AddAzureEventHubs(this IDistributedApplicationBuilder builder, string name) { throw null; }
 
+        [System.Obsolete("This method is obsolete and will be removed in a future version. Use WithHub instead to add an Azure Event Hub.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> AddEventHub(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> builder, string name) { throw null; }
 
+        public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> ConfigureEmulator(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, System.Action<System.Text.Json.Nodes.JsonNode> configJson) { throw null; }
+
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> RunAsEmulator(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> builder, System.Action<ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource>>? configureContainer = null) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> WithConfigurationFile(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, string path) { throw null; }
 
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> WithDataBindMount(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, string? path = null) { throw null; }
 
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> WithDataVolume(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, string? name = null) { throw null; }
 
+        [System.Obsolete("Use WithHostPort instead.")]
         public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> WithGatewayPort(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, int? port) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> WithHostPort(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsEmulatorResource> builder, int? port) { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> WithHub(this ApplicationModel.IResourceBuilder<Azure.AzureEventHubsResource> builder, string name, System.Action<Azure.EventHubs.EventHub>? configure = null) { throw null; }
     }
 }
 
@@ -46,5 +56,26 @@ namespace Aspire.Hosting.Azure
         public bool IsEmulator { get { throw null; } }
 
         void IResourceWithAzureFunctionsConfig.ApplyAzureFunctionsConfiguration(System.Collections.Generic.IDictionary<string, object> target, string connectionName) { }
+    }
+}
+
+namespace Aspire.Hosting.Azure.EventHubs
+{
+    public partial class EventHub
+    {
+        public EventHub(string name) { }
+
+        public System.Collections.Generic.List<EventHubConsumerGroup> ConsumerGroups { get { throw null; } }
+
+        public string Name { get { throw null; } set { } }
+
+        public long? PartitionCount { get { throw null; } set { } }
+    }
+
+    public partial class EventHubConsumerGroup
+    {
+        public EventHubConsumerGroup(string name) { }
+
+        public string Name { get { throw null; } set { } }
     }
 }
