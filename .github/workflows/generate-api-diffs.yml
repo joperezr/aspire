@@ -13,7 +13,7 @@ jobs:
         run: |
           set +e
 
-          for proj in $(find src -name '*.csproj'); do
+          for proj in $(find src -name '*.csproj' ! -path 'src/Aspire.ProjectTemplates/**/*.csproj'); do
             export CI=false && ./dotnet.sh build "$proj" --configuration Release --no-incremental /t:"Build;GenAPIGenerateReferenceAssemblySource"
           done
         continue-on-error: true
