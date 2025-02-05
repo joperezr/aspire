@@ -67,7 +67,11 @@ namespace Aspire.Hosting
     {
         public static ApplicationModel.IResourceBuilder<Azure.AzureProvisioningResource> AddAzureInfrastructure(this IDistributedApplicationBuilder builder, string name, System.Action<Azure.AzureResourceInfrastructure> configureInfrastructure) { throw null; }
 
+        public static global::Azure.Provisioning.ProvisioningParameter AsProvisioningParameter(this ApplicationModel.EndpointReference endpointReference, Azure.AzureResourceInfrastructure infrastructure, string parameterName) { throw null; }
+
         public static global::Azure.Provisioning.ProvisioningParameter AsProvisioningParameter(this ApplicationModel.IResourceBuilder<ApplicationModel.ParameterResource> parameterResourceBuilder, Azure.AzureResourceInfrastructure infrastructure, string? parameterName = null) { throw null; }
+
+        public static global::Azure.Provisioning.ProvisioningParameter AsProvisioningParameter(this ApplicationModel.ReferenceExpression expression, Azure.AzureResourceInfrastructure infrastructure, string parameterName) { throw null; }
 
         public static global::Azure.Provisioning.ProvisioningParameter AsProvisioningParameter(this Azure.BicepOutputReference outputReference, Azure.AzureResourceInfrastructure infrastructure, string? parameterName = null) { throw null; }
 
