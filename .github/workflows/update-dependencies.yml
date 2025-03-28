@@ -30,8 +30,35 @@ jobs:
         run: dotnet tool install --global dotnet-outdated-tool
 
       - name: Update packages
+        id: update_packages
         continue-on-error: true
-        run: dotnet outdated --no-restore -u ./Aspire.sln || echo "Some dependencies could not be updated, but continuing workflow."
+        run: |
+          # Run the command and capture output to a file
+          mkdir -p ${{ github.workspace }}/artifacts/logs
+          dotnet outdated --no-restore -u ./Aspire.sln > ${{ github.workspace }}/artifacts/logs/outdated_output.txt 2>&1
+          
+          # Save the exit code
+          UPDATE_EXIT_CODE=$?
+          echo "exitcode=$UPDATE_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # If there was an error, mark it for the PR description
+          if [ $UPDATE_EXIT_CODE -ne 0 ]; then
+            echo "update_failed=true" >> $GITHUB_OUTPUT
+            echo "Some dependencies could not be updated, but continuing workflow."
+          else
+            echo "update_failed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read outdated output if failed
+        id: read_output
+        if: steps.update_packages.outputs.update_failed == 'true'
+        run: |
+          OUTPUT_CONTENT=$(cat ${{ github.workspace }}/artifacts/logs/outdated_output.txt)
+          # Save multiline output correctly for GitHub Actions
+          OUTPUT_CONTENT="${OUTPUT_CONTENT//'%'/'%25'}"
+          OUTPUT_CONTENT="${OUTPUT_CONTENT//$'\n'/'%0A'}"
+          OUTPUT_CONTENT="${OUTPUT_CONTENT//$'\r'/'%0D'}"
+          echo "outdated_output=$OUTPUT_CONTENT" >> $GITHUB_OUTPUT
 
       - name: Revert all changes except Directory.Packages.props
         run: |
@@ -46,4 +73,15 @@ jobs:
           branch: update-dependencies
           commit-message: "[Automated] Updating package dependencies"
           title: "[Automated] Update dependencies"
-          body: "Auto-generated update to the package dependencies. In order for this PR to be green, it will require all of the new dependencies to be [mirrored to our AzDO NuGet feeds](https://github.com/dotnet/arcade/blob/main/Documentation/MirroringPackages.md). Any updates made outside of the first itemgroup in Directory.Packages.props should be reverted as those are packages that get updated through arcade's dependency flow."
+          body: |
+            Auto-generated update to the package dependencies. In order for this PR to be green, it will require all of the new dependencies to be [mirrored to our AzDO NuGet feeds](https://github.com/dotnet/arcade/blob/main/Documentation/MirroringPackages.md). Any updates made outside of the first itemgroup in Directory.Packages.props should be reverted as those are packages that get updated through arcade's dependency flow.
+            
+            ${{ steps.update_packages.outputs.update_failed == 'true' && '⚠️ **Note:** Some dependencies could not be updated during this run. See details below.' || '' }}
+            
+            ${{ steps.update_packages.outputs.update_failed == 'true' && '<details><summary>Click to view dotnet outdated command output</summary>
+            
+            ```
+            ' || '' }}${{ steps.update_packages.outputs.update_failed == 'true' && steps.read_output.outputs.outdated_output || '' }}${{ steps.update_packages.outputs.update_failed == 'true' && '
+            ```
+            
+            </details>' || '' }}
