@@ -119,6 +119,74 @@ jobs:
         retention-days: 30
         if-no-files-found: ignore
 
+    - name: Post test summary
+      if: always() && steps.run-tests.outcome != 'skipped'
+      shell: bash
+      run: |
+        echo "## 🧪 Channel Validation Results" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Property | Value |" >> "$GITHUB_STEP_SUMMARY"
+        echo "|----------|-------|" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Channel** | \`${{ matrix.channel }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Platform** | \`${{ matrix.platform }}\` |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Result** | ${{ steps.run-tests.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **Timestamp** | ${{ steps.metadata.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+
+        # Parse TRX file for individual test results
+        TRX_FILE=$(find "$GITHUB_WORKSPACE/testresults" -name "*.trx" -type f 2>/dev/null | head -1)
+        if [ -n "$TRX_FILE" ]; then
+          echo "### Test Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Test | Result | Duration |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|----------|" >> "$GITHUB_STEP_SUMMARY"
+
+          # Extract test results from TRX XML
+          # TRX uses <UnitTestResult testName="..." outcome="Passed|Failed|NotExecuted" duration="HH:MM:SS.mmm" />
+          grep -oP '<UnitTestResult[^>]*>' "$TRX_FILE" | while read -r line; do
+            test_name=$(echo "$line" | grep -oP 'testName="[^"]*"' | sed 's/testName="//;s/"//')
+            outcome=$(echo "$line" | grep -oP 'outcome="[^"]*"' | sed 's/outcome="//;s/"//')
+            duration=$(echo "$line" | grep -oP 'duration="[^"]*"' | sed 's/duration="//;s/"//')
+
+            # Short test name (class.method only)
+            short_name=$(echo "$test_name" | sed 's/.*\.\([^.]*\.\)/\1/')
+
+            case "$outcome" in
+              Passed)  icon="✅" ;;
+              Failed)  icon="❌" ;;
+              *)       icon="⏭️" ;;
+            esac
+
+            echo "| ${icon} ${short_name} | ${outcome} | ${duration} |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        # List terminal recordings with asciinema player links
+        RECORDINGS_DIR="$GITHUB_WORKSPACE/testresults/recordings"
+        if [ -d "$RECORDINGS_DIR" ] && [ "$(ls -A "$RECORDINGS_DIR" 2>/dev/null)" ]; then
+          echo "### 🎬 Terminal Recordings" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download the \`channel-validation-recordings-${{ matrix.channel }}-${{ matrix.platform }}\` artifact and replay with:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```bash' >> "$GITHUB_STEP_SUMMARY"
+          echo 'pip install asciinema && asciinema play <recording>.cast' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Or use the online player at https://asciinema-player.pages.dev" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Available recordings:**" >> "$GITHUB_STEP_SUMMARY"
+          for f in "$RECORDINGS_DIR"/*.cast; do
+            if [ -f "$f" ]; then
+              name=$(basename "$f")
+              size=$(du -h "$f" | cut -f1)
+              echo "- \`${name}\` (${size})" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
     - name: Ensure channel-validation-failure label exists
       if: failure() && steps.run-tests.outcome == 'failure'
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
