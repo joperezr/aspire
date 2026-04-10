@@ -144,6 +144,15 @@ internal static class ChannelValidationHelpers
         }
 
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(5));
+
+        // On Linux, the kernel can return ETXTBSY ("Text file busy") if we try to execute
+        // a binary that was just extracted. Flush filesystem buffers to avoid this race.
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            await auto.TypeAsync("sync");
+            await auto.EnterAsync();
+            await auto.WaitForSuccessPromptAsync(counter);
+        }
     }
 
     /// <summary>
