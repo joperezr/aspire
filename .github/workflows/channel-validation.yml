@@ -119,6 +119,29 @@ jobs:
         retention-days: 30
         if-no-files-found: ignore
 
+    - name: Ensure channel-validation-failure label exists
+      if: failure() && steps.run-tests.outcome == 'failure'
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+      with:
+        script: |
+          try {
+            await github.rest.issues.getLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'channel-validation-failure'
+            });
+          } catch (e) {
+            if (e.status === 404) {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'channel-validation-failure',
+                color: 'd93f0b',
+                description: 'Failure detected in channel validation smoke tests'
+              });
+            }
+          }
+
     - name: Create issue on failure
       if: failure() && steps.run-tests.outcome == 'failure'
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8

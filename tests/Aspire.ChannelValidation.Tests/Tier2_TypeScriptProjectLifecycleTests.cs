@@ -68,6 +68,10 @@ public sealed class Tier2_TypeScriptProjectLifecycleTests
         await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
         await auto.EnterAsync();
 
+        // URLs prompt — accept default
+        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
+        await auto.EnterAsync();
+
         // Handle agent init prompt (decline)
         await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
 

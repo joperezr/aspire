@@ -88,8 +88,9 @@ internal static class ChannelValidationHelpers
             await auto.WaitAsync(500);
 
             // Set up prompt counting for PowerShell
+            // Use $? to detect cmdlet/script failures (not just $LASTEXITCODE for native processes)
             const string pwshPromptSetup = """
-                $global:CMDCOUNT = 0; function prompt { $s = $LASTEXITCODE; $global:CMDCOUNT++; "[$global:CMDCOUNT $(if($s -eq 0 -or $null -eq $s){'OK'}else{\"ERR:$s\"})] $ " }
+                $global:CMDCOUNT = 0; function prompt { $s = $?; $global:CMDCOUNT++; "[$global:CMDCOUNT $(if($s){'OK'}else{"ERR:$LASTEXITCODE"})] $ " }
                 """;
             await auto.TypeAsync(pwshPromptSetup);
             await auto.EnterAsync();
@@ -147,6 +148,7 @@ internal static class ChannelValidationHelpers
 
     /// <summary>
     /// Adds the Aspire CLI install directory to PATH.
+    /// The install scripts default to ~/.aspire/bin (Unix) and %USERPROFILE%\.aspire\bin (Windows).
     /// </summary>
     internal static async Task AddCliToPathAsync(
         this Hex1bTerminalAutomator auto,
@@ -154,11 +156,11 @@ internal static class ChannelValidationHelpers
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            await auto.TypeAsync("$env:PATH = \"$env:USERPROFILE\\.aspire\\cli\" + [System.IO.Path]::PathSeparator + $env:PATH");
+            await auto.TypeAsync("$env:PATH = \"$env:USERPROFILE\\.aspire\\bin\" + [System.IO.Path]::PathSeparator + $env:PATH");
         }
         else
         {
-            await auto.TypeAsync("export PATH=\"$HOME/.aspire/cli:$PATH\"");
+            await auto.TypeAsync("export PATH=\"$HOME/.aspire/bin:$PATH\"");
         }
 
         await auto.EnterAsync();

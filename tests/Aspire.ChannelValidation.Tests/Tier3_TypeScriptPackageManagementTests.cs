@@ -60,6 +60,10 @@ public sealed class Tier3_TypeScriptPackageManagementTests
         await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
         await auto.EnterAsync();
 
+        // URLs prompt — accept default
+        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
+        await auto.EnterAsync();
+
         await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
@@ -70,8 +74,8 @@ public sealed class Tier3_TypeScriptPackageManagementTests
         await auto.TypeAsync("aspire add @aspire/hosting-redis");
         await auto.EnterAsync();
 
-        // Wait for completion
-        await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(2));
+        // Wait for completion — must succeed
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(2));
 
         await auto.ExitShellAsync();
         await pendingRun;

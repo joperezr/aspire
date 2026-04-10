@@ -60,6 +60,10 @@ public sealed class Tier4_TypeScriptPublishTests
         await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
         await auto.EnterAsync();
 
+        // URLs prompt — accept default
+        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
+        await auto.EnterAsync();
+
         await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
 
         await auto.ChangeDirectoryAsync(

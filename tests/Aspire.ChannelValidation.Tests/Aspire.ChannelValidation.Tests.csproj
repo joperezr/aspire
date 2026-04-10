@@ -11,7 +11,8 @@
     <SignAssembly>false</SignAssembly>
 
     <!-- Only run in the dedicated channel-validation workflow -->
-    <SkipTests Condition="'$(RunChannelValidationTests)' != 'true'">true</SkipTests>
+    <SkipTests>true</SkipTests>
+    <SkipTests Condition="'$(RunChannelValidationTests)' == 'true'">false</SkipTests>
 
     <!-- Never run in any standard CI pipeline -->
     <RunOnGithubActionsWindows>false</RunOnGithubActionsWindows>

@@ -72,11 +72,13 @@ public sealed class Tier3_DotNetPackageManagementTests
         await auto.EnterAsync();
 
         // Wait for the add command to prompt for AppHost selection or complete
+        var appHostPromptShown = false;
         await auto.WaitUntilAsync(s =>
         {
-            // It may ask which project is the AppHost, or it may auto-detect
+            // It may ask which project is the AppHost
             if (s.ContainsText("AppHost"))
             {
+                appHostPromptShown = true;
                 return true;
             }
             // Or it may succeed directly
@@ -87,15 +89,19 @@ public sealed class Tier3_DotNetPackageManagementTests
         }, timeout: TimeSpan.FromMinutes(2), description: "aspire add AppHost prompt or completion");
 
         // If prompted for AppHost, select the first option
-        await auto.EnterAsync();
-        await auto.WaitForSuccessPromptAsync(counter, TimeSpan.FromMinutes(2));
+        if (appHostPromptShown)
+        {
+            await auto.EnterAsync();
+        }
+
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(2));
 
         // Run aspire update to verify package resolution from channel feed
         await auto.TypeAsync("aspire update");
         await auto.EnterAsync();
 
-        // Update may show "already up to date" or update packages
-        await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(3));
+        // Update must succeed — use fail-fast to catch feed resolution errors
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         await auto.ExitShellAsync();
         await pendingRun;
