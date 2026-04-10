@@ -36,7 +36,7 @@ concurrency:
 jobs:
   validate:
     name: ${{ matrix.channel }} / ${{ matrix.platform }}
-    if: github.repository == 'microsoft/aspire'
+    if: github.repository == 'microsoft/aspire' || github.repository == 'joperezr/aspire'
     strategy:
       fail-fast: false
       matrix:
