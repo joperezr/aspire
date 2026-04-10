@@ -133,37 +133,71 @@ jobs:
         echo "| **Timestamp** | ${{ steps.metadata.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
 
-        # Parse TRX file for individual test results
+        # Parse TRX file for individual test results using Python (portable across all platforms)
         TRX_FILE=$(find "$GITHUB_WORKSPACE/testresults" -name "*.trx" -type f 2>/dev/null | head -1)
-        if [ -n "$TRX_FILE" ]; then
-          echo "### Test Results" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Test | Result | Duration |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|------|--------|----------|" >> "$GITHUB_STEP_SUMMARY"
+        if [ -n "$TRX_FILE" ] && [ -f "$TRX_FILE" ]; then
+          python3 - "$TRX_FILE" >> "$GITHUB_STEP_SUMMARY" << 'PYEOF'
+        import sys
+        import xml.etree.ElementTree as ET
 
-          # Extract test results from TRX XML
-          # TRX uses <UnitTestResult testName="..." outcome="Passed|Failed|NotExecuted" duration="HH:MM:SS.mmm" />
-          grep -oP '<UnitTestResult[^>]*>' "$TRX_FILE" | while read -r line; do
-            test_name=$(echo "$line" | grep -oP 'testName="[^"]*"' | sed 's/testName="//;s/"//')
-            outcome=$(echo "$line" | grep -oP 'outcome="[^"]*"' | sed 's/outcome="//;s/"//')
-            duration=$(echo "$line" | grep -oP 'duration="[^"]*"' | sed 's/duration="//;s/"//')
+        trx_file = sys.argv[1]
+        try:
+            tree = ET.parse(trx_file)
+            root = tree.getroot()
+            # TRX namespace
+            ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
 
-            # Short test name (class.method only)
-            short_name=$(echo "$test_name" | sed 's/.*\.\([^.]*\.\)/\1/')
+            results = root.findall('.//t:UnitTestResult', ns)
+            if not results:
+                # Try without namespace (some TRX variants)
+                results = root.findall('.//UnitTestResult')
 
-            case "$outcome" in
-              Passed)  icon="✅" ;;
-              Failed)  icon="❌" ;;
-              *)       icon="⏭️" ;;
-            esac
+            if results:
+                print("### Test Results")
+                print("")
+                print("| Test | Result | Duration |")
+                print("|------|--------|----------|")
 
-            echo "| ${icon} ${short_name} | ${outcome} | ${duration} |" >> "$GITHUB_STEP_SUMMARY"
-          done
+                for r in results:
+                    test_name = r.get('testName', 'Unknown')
+                    outcome = r.get('outcome', 'Unknown')
+                    duration = r.get('duration', 'N/A')
 
+                    # Shorten: keep only ClassName.MethodName
+                    parts = test_name.rsplit('.', 2)
+                    short = '.'.join(parts[-2:]) if len(parts) >= 2 else test_name
+
+                    icons = {'Passed': '✅', 'Failed': '❌', 'NotExecuted': '⏭️'}
+                    icon = icons.get(outcome, '❓')
+
+                    # Truncate duration to seconds
+                    if duration and duration != 'N/A':
+                        try:
+                            h, m, s = duration.split(':')
+                            total_s = int(h)*3600 + int(m)*60 + float(s)
+                            if total_s >= 60:
+                                duration = f"{int(total_s//60)}m {int(total_s%60)}s"
+                            else:
+                                duration = f"{total_s:.1f}s"
+                        except (ValueError, TypeError):
+                            pass
+
+                    print(f"| {icon} {short} | {outcome} | {duration} |")
+
+                print("")
+            else:
+                print("_No individual test results found in TRX file._")
+                print("")
+        except Exception as e:
+            print(f"_Failed to parse TRX file: {e}_")
+            print("")
+        PYEOF
+        else
+          echo "_No TRX result file found._" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
         fi
 
-        # List terminal recordings with asciinema player links
+        # List terminal recordings
         RECORDINGS_DIR="$GITHUB_WORKSPACE/testresults/recordings"
         if [ -d "$RECORDINGS_DIR" ] && [ "$(ls -A "$RECORDINGS_DIR" 2>/dev/null)" ]; then
           echo "### 🎬 Terminal Recordings" >> "$GITHUB_STEP_SUMMARY"
