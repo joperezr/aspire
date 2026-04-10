@@ -1,0 +1,79 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Aspire.ChannelValidation.Tests.Helpers;
+using Aspire.Tests.Shared;
+using Hex1b.Automation;
+using Xunit;
+
+namespace Aspire.ChannelValidation.Tests;
+
+/// <summary>
+/// Tier 3: TypeScript (polyglot) package management tests.
+/// Validates that aspire add works correctly for TypeScript AppHost projects.
+/// </summary>
+public sealed class Tier3_TypeScriptPackageManagementTests
+{
+    [Fact]
+    public async Task Add_Integration_TypeScriptProject()
+    {
+        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
+        var channel = ChannelValidationHelpers.GetChannel();
+        var workspace = ChannelValidationHelpers.CreateTempWorkspace();
+
+        using var terminal = ChannelValidationHelpers.CreateTestTerminal();
+        var pendingRun = terminal.RunAsync(TestContext.Current.CancellationToken);
+
+        var counter = new SequenceCounter();
+        var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
+
+        await auto.PrepareShellEnvironmentAsync(counter);
+        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
+        await auto.AddCliToPathAsync(counter);
+        await auto.ChangeDirectoryAsync(workspace, counter);
+
+        // Create a TypeScript Empty AppHost
+        await auto.TypeAsync("aspire new");
+        await auto.EnterAsync();
+
+        await auto.WaitUntilAsync(
+            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
+            timeout: TimeSpan.FromSeconds(60),
+            description: "template selection");
+
+        // Navigate to TypeScript Empty AppHost
+        await auto.DownAsync();
+        await auto.DownAsync();
+        await auto.DownAsync();
+        await auto.DownAsync();
+
+        await auto.WaitUntilAsync(
+            s => new CellPatternSearcher().Find("TypeScript").Search(s).Count > 0,
+            timeout: TimeSpan.FromSeconds(10),
+            description: "TypeScript template option");
+        await auto.EnterAsync();
+
+        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
+        await auto.TypeAsync("TsPkgTestApp");
+        await auto.EnterAsync();
+
+        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
+        await auto.EnterAsync();
+
+        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+
+        // Navigate into the project
+        await auto.ChangeDirectoryAsync(
+            System.IO.Path.Combine(workspace, "TsPkgTestApp"), counter);
+
+        // Run aspire add to add an integration to the TS project
+        await auto.TypeAsync("aspire add @aspire/hosting-redis");
+        await auto.EnterAsync();
+
+        // Wait for completion
+        await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(2));
+
+        await auto.ExitShellAsync();
+        await pendingRun;
+    }
+}

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <IsUnitTestProject>true</IsUnitTestProject>
+    <OutputType>Exe</OutputType>
+    <SignAssembly>false</SignAssembly>
+
+    <!-- Only run in the dedicated channel-validation workflow -->
+    <SkipTests Condition="'$(RunChannelValidationTests)' != 'true'">true</SkipTests>
+
+    <!-- Never run in any standard CI pipeline -->
+    <RunOnGithubActionsWindows>false</RunOnGithubActionsWindows>
+    <RunOnGithubActionsMacOS>false</RunOnGithubActionsMacOS>
+    <RunOnGithubActionsLinux>false</RunOnGithubActionsLinux>
+    <RunOnAzdoHelixWindows>false</RunOnAzdoHelixWindows>
+    <RunOnAzdoHelixLinux>false</RunOnAzdoHelixLinux>
+    <RunOnAzdoCIWindows>false</RunOnAzdoCIWindows>
+    <RunOnAzdoCILinux>false</RunOnAzdoCILinux>
+
+    <!-- No NuGet or workload dependencies — tests install CLI from published channels -->
+    <RequiresNugets>false</RequiresNugets>
+    <RequiresCliArchive>false</RequiresCliArchive>
+    <TestUsingWorkloads>false</TestUsingWorkloads>
+    <InstallWorkloadForTesting>false</InstallWorkloadForTesting>
+    <IncludeTestPackages>false</IncludeTestPackages>
+
+    <!-- Timeouts — channel install + project lifecycle can be slow -->
+    <TestSessionTimeout>30m</TestSessionTimeout>
+    <TestHangTimeout>15m</TestHangTimeout>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hex1b" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(TestsSharedDir)Hex1bTestHelpers.cs" Link="shared\Hex1bTestHelpers.cs" />
+    <Compile Include="$(TestsSharedDir)Hex1bAutomatorTestHelpers.cs" Link="shared\Hex1bAutomatorTestHelpers.cs" />
+  </ItemGroup>
+
+</Project>
