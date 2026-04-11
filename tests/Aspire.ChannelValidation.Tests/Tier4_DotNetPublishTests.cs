@@ -18,8 +18,6 @@ public sealed class Tier4_DotNetPublishTests
     [Fact]
     public async Task Publish_Manifest_GeneratesValidJson()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
         var workspace = ChannelValidationHelpers.CreateTempWorkspace();
 
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
@@ -29,8 +27,6 @@ public sealed class Tier4_DotNetPublishTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode
@@ -72,8 +68,6 @@ public sealed class Tier4_DotNetPublishTests
         // Docker Compose publish requires Docker — Linux only
         Assert.SkipUnless(ChannelValidationHelpers.IsLinux, "Docker Compose publish requires Docker (Linux only)");
 
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
         var workspace = ChannelValidationHelpers.CreateTempWorkspace();
 
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
@@ -83,8 +77,6 @@ public sealed class Tier4_DotNetPublishTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode

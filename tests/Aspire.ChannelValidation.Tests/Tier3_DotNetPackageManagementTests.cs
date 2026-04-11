@@ -17,8 +17,6 @@ public sealed class Tier3_DotNetPackageManagementTests
     [Fact]
     public async Task Add_Integration_And_Update_Packages()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
         var workspace = ChannelValidationHelpers.CreateTempWorkspace();
 
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
@@ -28,8 +26,6 @@ public sealed class Tier3_DotNetPackageManagementTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode

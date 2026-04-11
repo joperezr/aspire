@@ -15,35 +15,6 @@ namespace Aspire.ChannelValidation.Tests.Helpers;
 /// </summary>
 internal static class ChannelValidationHelpers
 {
-    /// <summary>
-    /// Gets the channel to validate from the CHANNEL_VALIDATION_CHANNEL environment variable.
-    /// Defaults to "dev" if not set.
-    /// </summary>
-    internal static string GetChannel()
-    {
-        return Environment.GetEnvironmentVariable("CHANNEL_VALIDATION_CHANNEL") ?? "dev";
-    }
-
-    /// <summary>
-    /// Gets the repo root by walking up from the test binary location to find Aspire.slnx.
-    /// </summary>
-    internal static string GetRepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (dir is not null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "Aspire.slnx")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException(
-            $"Could not find repo root (directory containing Aspire.slnx) by walking up from {AppContext.BaseDirectory}");
-    }
 
     /// <summary>
     /// Creates a cross-platform Hex1b terminal suitable for channel validation tests.
@@ -118,62 +89,6 @@ internal static class ChannelValidationHelpers
             await auto.EnterAsync();
             await auto.WaitForSuccessPromptAsync(counter);
         }
-    }
-
-    /// <summary>
-    /// Installs the Aspire CLI from the specified channel using the public install scripts.
-    /// Uses eng/scripts/get-aspire-cli.ps1 on Windows or eng/scripts/get-aspire-cli.sh on Unix.
-    /// </summary>
-    internal static async Task InstallCliFromChannelAsync(
-        this Hex1bTerminalAutomator auto,
-        string repoRoot,
-        string channel,
-        Aspire.Tests.Shared.SequenceCounter counter)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            var scriptPath = Path.Combine(repoRoot, "eng", "scripts", "get-aspire-cli.ps1").Replace("\\", "/");
-            await auto.TypeAsync($"& '{scriptPath}' -Quality {channel}");
-            await auto.EnterAsync();
-        }
-        else
-        {
-            var scriptPath = Path.Combine(repoRoot, "eng", "scripts", "get-aspire-cli.sh");
-            await auto.TypeAsync($"bash '{scriptPath}' --quality {channel}");
-            await auto.EnterAsync();
-        }
-
-        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(5));
-
-        // On Linux, the kernel can return ETXTBSY ("Text file busy") if we try to execute
-        // a binary that was just extracted. Flush filesystem buffers and wait briefly.
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            await auto.TypeAsync("sync && sleep 2");
-            await auto.EnterAsync();
-            await auto.WaitForSuccessPromptAsync(counter);
-        }
-    }
-
-    /// <summary>
-    /// Adds the Aspire CLI install directory to PATH.
-    /// The install scripts default to ~/.aspire/bin (Unix) and %USERPROFILE%\.aspire\bin (Windows).
-    /// </summary>
-    internal static async Task AddCliToPathAsync(
-        this Hex1bTerminalAutomator auto,
-        Aspire.Tests.Shared.SequenceCounter counter)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            await auto.TypeAsync("$env:PATH = \"$env:USERPROFILE\\.aspire\\bin\" + [System.IO.Path]::PathSeparator + $env:PATH");
-        }
-        else
-        {
-            await auto.TypeAsync("export PATH=\"$HOME/.aspire/bin:$PATH\"");
-        }
-
-        await auto.EnterAsync();
-        await auto.WaitForSuccessPromptAsync(counter);
     }
 
     /// <summary>

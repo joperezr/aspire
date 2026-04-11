@@ -10,18 +10,15 @@ namespace Aspire.ChannelValidation.Tests;
 
 /// <summary>
 /// Tier 1: Installation and binary integrity tests.
-/// Validates that the CLI can be installed from a published channel and that the
+/// The CLI is pre-installed by the workflow. These tests validate that the
 /// binary is functional (correct permissions, signing, basic execution).
 /// These tests catch issues like #16043 where macOS binaries lost execute permissions.
 /// </summary>
 public sealed class Tier1_InstallationTests
 {
     [Fact]
-    public async Task Install_CliFromChannel_AndVerifyVersion()
+    public async Task Aspire_Version_ReportsValidVersion()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
-
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
         var pendingRun = terminal.RunAsync(TestContext.Current.CancellationToken);
 
@@ -29,8 +26,6 @@ public sealed class Tier1_InstallationTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
 
         // Verify aspire --version succeeds and outputs a version string
         await auto.TypeAsync("aspire --version");
@@ -44,9 +39,6 @@ public sealed class Tier1_InstallationTests
     [Fact]
     public async Task Aspire_Doctor_RunsSuccessfully()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
-
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
         var pendingRun = terminal.RunAsync(TestContext.Current.CancellationToken);
 
@@ -54,8 +46,6 @@ public sealed class Tier1_InstallationTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
 
         // aspire doctor should run to completion (validates binary integrity,
         // environment detection, and basic framework functionality)
@@ -73,9 +63,6 @@ public sealed class Tier1_InstallationTests
     [Fact]
     public async Task Aspire_Help_ShowsCommands()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
-
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
         var pendingRun = terminal.RunAsync(TestContext.Current.CancellationToken);
 
@@ -83,8 +70,6 @@ public sealed class Tier1_InstallationTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
 
         // aspire --help should show the CLI help with key commands
         await auto.TypeAsync("aspire --help");

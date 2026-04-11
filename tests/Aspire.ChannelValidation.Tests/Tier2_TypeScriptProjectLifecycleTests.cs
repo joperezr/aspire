@@ -20,8 +20,6 @@ public sealed class Tier2_TypeScriptProjectLifecycleTests
     [Fact]
     public async Task New_Run_Stop_TypeScriptStarterProject()
     {
-        var repoRoot = ChannelValidationHelpers.GetRepoRoot();
-        var channel = ChannelValidationHelpers.GetChannel();
         var workspace = ChannelValidationHelpers.CreateTempWorkspace();
 
         using var terminal = ChannelValidationHelpers.CreateTestTerminal();
@@ -31,8 +29,6 @@ public sealed class Tier2_TypeScriptProjectLifecycleTests
         var auto = new Hex1bTerminalAutomator(terminal, defaultTimeout: TimeSpan.FromSeconds(500));
 
         await auto.PrepareShellEnvironmentAsync(counter);
-        await auto.InstallCliFromChannelAsync(repoRoot, channel, counter);
-        await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a TypeScript empty AppHost project using non-interactive mode

@@ -80,6 +80,33 @@ jobs:
         echo "platform=${{ matrix.platform }}" >> "$GITHUB_OUTPUT"
         echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
+    - name: Install Aspire CLI from channel
+      shell: bash
+      run: |
+        channel="${{ matrix.channel }}"
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          pwsh -NoProfile -Command "& '${{ github.workspace }}/eng/scripts/get-aspire-cli.ps1' -Quality $channel"
+        else
+          bash '${{ github.workspace }}/eng/scripts/get-aspire-cli.sh' --quality "$channel"
+          # Wait for filesystem to settle (prevents ETXTBSY on Linux)
+          sync && sleep 2
+        fi
+
+    - name: Add Aspire CLI to PATH
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "$USERPROFILE/.aspire/bin" >> "$GITHUB_PATH"
+        else
+          echo "$HOME/.aspire/bin" >> "$GITHUB_PATH"
+        fi
+
+    - name: Verify CLI installation
+      shell: bash
+      run: |
+        aspire --version
+        echo "cli_version=$(aspire --version 2>/dev/null | head -1)" >> "$GITHUB_OUTPUT"
+
     - name: Build test project
       shell: bash
       run: |
