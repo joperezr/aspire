@@ -102,6 +102,7 @@ jobs:
         fi
 
     - name: Verify CLI installation
+      id: cli-version
       shell: bash
       run: |
         aspire --version
@@ -157,6 +158,7 @@ jobs:
         echo "| **Channel** | \`${{ matrix.channel }}\` |" >> "$GITHUB_STEP_SUMMARY"
         echo "| **Platform** | \`${{ matrix.platform }}\` |" >> "$GITHUB_STEP_SUMMARY"
         echo "| **Result** | ${{ steps.run-tests.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| **CLI Version** | \`${{ steps.cli-version.outputs.cli_version }}\` |" >> "$GITHUB_STEP_SUMMARY"
         echo "| **Timestamp** | ${{ steps.metadata.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
 
