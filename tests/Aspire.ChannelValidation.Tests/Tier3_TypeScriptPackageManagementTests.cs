@@ -37,7 +37,8 @@ public sealed class Tier3_TypeScriptPackageManagementTests
         await auto.ChangeDirectoryAsync("TsPkgTestApp", counter);
 
         // Run aspire add to add an integration to the TS project
-        await auto.TypeAsync("aspire add @aspire/hosting-redis --non-interactive");
+        // Use short name 'redis' — '@aspire/hosting-redis' has @ parsed as response file by System.CommandLine
+        await auto.TypeAsync("aspire add redis --non-interactive");
         await auto.EnterAsync();
 
         // Wait for completion — must succeed
