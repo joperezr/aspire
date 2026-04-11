@@ -32,46 +32,17 @@ public sealed class Tier3_TypeScriptPackageManagementTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a TypeScript Empty AppHost
-        await auto.TypeAsync("aspire new");
+        // Create a TypeScript Empty AppHost using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-ts-empty-apphost --name TsPkgTestApp --non-interactive");
         await auto.EnterAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection");
-
-        // Navigate to TypeScript Empty AppHost
-        await auto.DownAsync();
-        await auto.DownAsync();
-        await auto.DownAsync();
-        await auto.DownAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("TypeScript").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(10),
-            description: "TypeScript template option");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("TsPkgTestApp");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        // URLs prompt — accept default
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "TsPkgTestApp"), counter);
 
         // Run aspire add to add an integration to the TS project
-        await auto.TypeAsync("aspire add @aspire/hosting-redis");
+        await auto.TypeAsync("aspire add @aspire/hosting-redis --non-interactive");
         await auto.EnterAsync();
 
         // Wait for completion — must succeed

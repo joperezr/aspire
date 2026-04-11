@@ -35,51 +35,16 @@ public sealed class Tier2_TypeScriptProjectLifecycleTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a new TypeScript starter project
-        await auto.TypeAsync("aspire new");
+        // Create a TypeScript empty AppHost project using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-ts-empty-apphost --name TsValidationApp --non-interactive");
         await auto.EnterAsync();
-
-        // Wait for template selection and navigate to TypeScript Starter
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection list");
-
-        // Navigate down to TypeScript Empty AppHost
-        // Template order: Starter App, Starter App (React), Starter App (Express/React),
-        //                 Starter App (Python/React), Empty AppHost (TypeScript), Empty AppHost, ...
-        await auto.DownAsync();
-        await auto.DownAsync();
-        await auto.DownAsync();
-        await auto.DownAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("TypeScript").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(10),
-            description: "TypeScript template option");
-        await auto.EnterAsync();
-
-        // Project name prompt
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("TsValidationApp");
-        await auto.EnterAsync();
-
-        // Output path prompt — accept default
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        // URLs prompt — accept default
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        // Handle agent init prompt (decline)
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Run the TypeScript project with aspire run
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "TsValidationApp"), counter);
 
-        await auto.TypeAsync("aspire run");
+        await auto.TypeAsync("aspire run --non-interactive");
         await auto.EnterAsync();
 
         // Wait for the app to start

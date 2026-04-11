@@ -33,45 +33,20 @@ public sealed class Tier4_DotNetPublishTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a starter project (no Redis, no test project)
-        await auto.TypeAsync("aspire new");
+        // Create a starter project using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-starter --name PublishTestApp --non-interactive");
         await auto.EnterAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("PublishTestApp");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Redis", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("test project", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "PublishTestApp"), counter);
 
         // Publish with manifest publisher (no Docker required)
-        await auto.TypeAsync("aspire publish --publisher manifest --output-path ./manifest-output");
+        await auto.TypeAsync("aspire publish --publisher manifest --output-path ./manifest-output --non-interactive");
         await auto.EnterAsync();
 
-        // Wait for publish to complete — it may prompt for AppHost selection
+        // Wait for publish to complete
         await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(3));
 
         // Verify the manifest file was created
@@ -113,41 +88,16 @@ public sealed class Tier4_DotNetPublishTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a starter project
-        await auto.TypeAsync("aspire new");
+        // Create a starter project using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-starter --name DockerPublishApp --non-interactive");
         await auto.EnterAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("DockerPublishApp");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Redis", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("test project", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "DockerPublishApp"), counter);
 
         // Publish with Docker Compose publisher
-        await auto.TypeAsync("aspire publish --publisher docker --output-path ./docker-output");
+        await auto.TypeAsync("aspire publish --publisher docker --output-path ./docker-output --non-interactive");
         await auto.EnterAsync();
 
         await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(5));

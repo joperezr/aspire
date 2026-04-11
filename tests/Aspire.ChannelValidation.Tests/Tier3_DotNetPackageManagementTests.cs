@@ -32,72 +32,22 @@ public sealed class Tier3_DotNetPackageManagementTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a starter project (no Redis, no test project)
-        await auto.TypeAsync("aspire new");
+        // Create a starter project using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-starter --name PkgTestApp --non-interactive");
         await auto.EnterAsync();
-
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("PkgTestApp");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("Redis", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.WaitUntilTextAsync("test project", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "PkgTestApp"), counter);
 
-        // Run aspire add to add a hosting integration
-        // Use PostgreSQL as it doesn't require Docker for just adding the package
-        await auto.TypeAsync("aspire add Aspire.Hosting.PostgreSQL");
+        // Run aspire add to add a hosting integration (non-interactive to avoid prompts)
+        await auto.TypeAsync("aspire add Aspire.Hosting.PostgreSQL --non-interactive");
         await auto.EnterAsync();
-
-        // Wait for the add command to prompt for AppHost selection or complete
-        var appHostPromptShown = false;
-        await auto.WaitUntilAsync(s =>
-        {
-            // It may ask which project is the AppHost
-            if (s.ContainsText("AppHost"))
-            {
-                appHostPromptShown = true;
-                return true;
-            }
-            // Or it may succeed directly
-            return new CellPatternSearcher()
-                .FindPattern(counter.Value.ToString())
-                .RightText(" OK] $ ")
-                .Search(s).Count > 0;
-        }, timeout: TimeSpan.FromMinutes(2), description: "aspire add AppHost prompt or completion");
-
-        // If prompted for AppHost, select the first option
-        if (appHostPromptShown)
-        {
-            await auto.EnterAsync();
-        }
-
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(2));
 
         // Run aspire update to verify package resolution from channel feed
-        await auto.TypeAsync("aspire update");
+        await auto.TypeAsync("aspire update --non-interactive");
         await auto.EnterAsync();
 
         // Update must succeed — use fail-fast to catch feed resolution errors

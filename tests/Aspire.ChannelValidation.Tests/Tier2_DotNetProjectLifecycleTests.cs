@@ -34,42 +34,10 @@ public sealed class Tier2_DotNetProjectLifecycleTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a new starter project using aspire new
-        await auto.TypeAsync("aspire new");
+        // Create a starter project using non-interactive mode
+        await auto.TypeAsync("aspire new aspire-starter --name ChannelValidationApp --non-interactive");
         await auto.EnterAsync();
-
-        // Wait for template selection and pick Starter App (first option)
-        await auto.WaitUntilAsync(
-            s => new CellPatternSearcher().Find("> Starter App").Search(s).Count > 0,
-            timeout: TimeSpan.FromSeconds(60),
-            description: "template selection list (> Starter App)");
-        await auto.EnterAsync();
-
-        // Project name prompt
-        await auto.WaitUntilTextAsync("Project name", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("ChannelValidationApp");
-        await auto.EnterAsync();
-
-        // Output path prompt — accept default
-        await auto.WaitUntilTextAsync("Output path", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        // URLs prompt — accept default
-        await auto.WaitUntilTextAsync("URLs", timeout: TimeSpan.FromSeconds(30));
-        await auto.EnterAsync();
-
-        // Redis cache prompt — decline (no Docker guarantee on all platforms)
-        await auto.WaitUntilTextAsync("Redis", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        // Test project prompt — decline
-        await auto.WaitUntilTextAsync("test project", timeout: TimeSpan.FromSeconds(30));
-        await auto.TypeAsync("n");
-        await auto.EnterAsync();
-
-        // Handle agent init prompt (decline)
-        await auto.DeclineAgentInitPromptAsync(counter, TimeSpan.FromMinutes(3));
+        await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Build the created project
         await auto.TypeAsync("dotnet build ChannelValidationApp");
@@ -80,7 +48,7 @@ public sealed class Tier2_DotNetProjectLifecycleTests
         await auto.ChangeDirectoryAsync(
             System.IO.Path.Combine(workspace, "ChannelValidationApp"), counter);
 
-        await auto.TypeAsync("aspire run");
+        await auto.TypeAsync("aspire run --non-interactive");
         await auto.EnterAsync();
 
         // Wait for the app to start
