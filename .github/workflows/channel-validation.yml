@@ -108,6 +108,41 @@ jobs:
         aspire --version
         echo "cli_version=$(aspire --version 2>/dev/null | head -1)" >> "$GITHUB_OUTPUT"
 
+    - name: Configure NuGet feeds for channel
+      shell: bash
+      run: |
+        # Create a NuGet.config with the channel-specific feed so that
+        # aspire new / aspire add / aspire update can resolve packages.
+        channel="${{ matrix.channel }}"
+        case "$channel" in
+          dev)
+            feed_url="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json"
+            ;;
+          staging)
+            feed_url="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json"
+            ;;
+          release)
+            feed_url="https://api.nuget.org/v3/index.json"
+            ;;
+        esac
+
+        config_dir="$HOME/.nuget/NuGet"
+        mkdir -p "$config_dir"
+
+        cat > "$config_dir/NuGet.Config" << EOF
+        <?xml version="1.0" encoding="utf-8"?>
+        <configuration>
+          <packageSources>
+            <clear />
+            <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+            <add key="aspire-channel" value="$feed_url" />
+          </packageSources>
+        </configuration>
+        EOF
+
+        echo "Configured NuGet feeds for '$channel' channel:"
+        cat "$config_dir/NuGet.Config"
+
     - name: Build test project
       shell: bash
       run: |
