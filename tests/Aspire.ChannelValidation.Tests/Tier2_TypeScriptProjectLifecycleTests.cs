@@ -36,13 +36,12 @@ public sealed class Tier2_TypeScriptProjectLifecycleTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a TypeScript empty AppHost project using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-ts-empty-apphost --name TsValidationApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-ts-empty --name TsValidationApp --output ./TsValidationApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Run the TypeScript project with aspire run
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "TsValidationApp"), counter);
+        await auto.ChangeDirectoryAsync("TsValidationApp", counter);
 
         await auto.TypeAsync("aspire run --non-interactive");
         await auto.EnterAsync();

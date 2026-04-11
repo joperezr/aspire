@@ -33,12 +33,11 @@ public sealed class Tier4_TypeScriptPublishTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a TypeScript Empty AppHost using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-ts-empty-apphost --name TsPublishApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-ts-empty --name TsPublishApp --output ./TsPublishApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "TsPublishApp"), counter);
+        await auto.ChangeDirectoryAsync("TsPublishApp", counter);
 
         // Publish with manifest publisher
         await auto.TypeAsync("aspire publish --publisher manifest --output-path ./manifest-output --non-interactive");

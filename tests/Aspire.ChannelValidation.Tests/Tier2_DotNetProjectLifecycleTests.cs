@@ -34,8 +34,8 @@ public sealed class Tier2_DotNetProjectLifecycleTests
         await auto.AddCliToPathAsync(counter);
         await auto.ChangeDirectoryAsync(workspace, counter);
 
-        // Create a starter project using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-starter --name ChannelValidationApp --non-interactive");
+        // Create a starter project using non-interactive mode with all required args
+        await auto.TypeAsync("aspire new aspire-starter --name ChannelValidationApp --output ./ChannelValidationApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
@@ -45,8 +45,7 @@ public sealed class Tier2_DotNetProjectLifecycleTests
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Run the project with aspire run
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "ChannelValidationApp"), counter);
+        await auto.ChangeDirectoryAsync("ChannelValidationApp", counter);
 
         await auto.TypeAsync("aspire run --non-interactive");
         await auto.EnterAsync();

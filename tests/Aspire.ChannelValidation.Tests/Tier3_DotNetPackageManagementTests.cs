@@ -33,13 +33,12 @@ public sealed class Tier3_DotNetPackageManagementTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-starter --name PkgTestApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-starter --name PkgTestApp --output ./PkgTestApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "PkgTestApp"), counter);
+        await auto.ChangeDirectoryAsync("PkgTestApp", counter);
 
         // Run aspire add to add a hosting integration (non-interactive to avoid prompts)
         await auto.TypeAsync("aspire add Aspire.Hosting.PostgreSQL --non-interactive");

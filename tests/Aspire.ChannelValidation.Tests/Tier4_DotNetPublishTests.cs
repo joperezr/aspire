@@ -34,13 +34,12 @@ public sealed class Tier4_DotNetPublishTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-starter --name PublishTestApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-starter --name PublishTestApp --output ./PublishTestApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "PublishTestApp"), counter);
+        await auto.ChangeDirectoryAsync("PublishTestApp", counter);
 
         // Publish with manifest publisher (no Docker required)
         await auto.TypeAsync("aspire publish --publisher manifest --output-path ./manifest-output --non-interactive");
@@ -89,12 +88,11 @@ public sealed class Tier4_DotNetPublishTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a starter project using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-starter --name DockerPublishApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-starter --name DockerPublishApp --output ./DockerPublishApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "DockerPublishApp"), counter);
+        await auto.ChangeDirectoryAsync("DockerPublishApp", counter);
 
         // Publish with Docker Compose publisher
         await auto.TypeAsync("aspire publish --publisher docker --output-path ./docker-output --non-interactive");

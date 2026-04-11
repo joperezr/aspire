@@ -33,13 +33,12 @@ public sealed class Tier3_TypeScriptPackageManagementTests
         await auto.ChangeDirectoryAsync(workspace, counter);
 
         // Create a TypeScript Empty AppHost using non-interactive mode
-        await auto.TypeAsync("aspire new aspire-ts-empty-apphost --name TsPkgTestApp --non-interactive");
+        await auto.TypeAsync("aspire new aspire-ts-empty --name TsPkgTestApp --output ./TsPkgTestApp --non-interactive");
         await auto.EnterAsync();
         await auto.WaitForSuccessPromptFailFastAsync(counter, TimeSpan.FromMinutes(3));
 
         // Navigate into the project
-        await auto.ChangeDirectoryAsync(
-            System.IO.Path.Combine(workspace, "TsPkgTestApp"), counter);
+        await auto.ChangeDirectoryAsync("TsPkgTestApp", counter);
 
         // Run aspire add to add an integration to the TS project
         await auto.TypeAsync("aspire add @aspire/hosting-redis --non-interactive");
