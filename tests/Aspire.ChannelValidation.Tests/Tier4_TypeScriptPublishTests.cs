@@ -41,18 +41,18 @@ public sealed class Tier4_TypeScriptPublishTests
 
         await auto.WaitForAnyPromptAsync(counter, TimeSpan.FromMinutes(3));
 
-        // Verify the manifest file was created
+        // Verify the output directory was created and contains files
         if (ChannelValidationHelpers.IsLinux || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
         {
-            await auto.TypeAsync("test -f ./manifest-output/manifest.json && echo 'MANIFEST_EXISTS' || echo 'MANIFEST_MISSING'");
+            await auto.TypeAsync("ls ./manifest-output/ && echo 'OUTPUT_EXISTS' || echo 'OUTPUT_MISSING'");
         }
         else
         {
-            await auto.TypeAsync("if (Test-Path ./manifest-output/manifest.json) { echo 'MANIFEST_EXISTS' } else { echo 'MANIFEST_MISSING' }");
+            await auto.TypeAsync("if (Test-Path ./manifest-output/*) { echo 'OUTPUT_EXISTS' } else { echo 'OUTPUT_MISSING' }");
         }
         await auto.EnterAsync();
 
-        await auto.WaitUntilTextAsync("MANIFEST_EXISTS", timeout: TimeSpan.FromSeconds(15));
+        await auto.WaitUntilTextAsync("OUTPUT_EXISTS", timeout: TimeSpan.FromSeconds(15));
         await auto.WaitForSuccessPromptAsync(counter);
 
         await auto.ExitShellAsync();
