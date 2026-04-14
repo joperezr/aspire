@@ -125,25 +125,10 @@ internal sealed class TelemetrySpansCommand : BaseCommand
             return ExitCodeConstants.InvalidCommand;
         }
 
-        // Build query string with multiple resource parameters
-        var additionalParams = new List<(string key, string? value)>
-        {
-            ("traceId", traceId)
-        };
-        if (hasError.HasValue)
-        {
-            additionalParams.Add(("hasError", hasError.Value.ToString().ToLowerInvariant()));
-        }
-        if (limit.HasValue && !follow)
-        {
-            additionalParams.Add(("limit", limit.Value.ToString(CultureInfo.InvariantCulture)));
-        }
-        if (follow)
-        {
-            additionalParams.Add(("follow", "true"));
-        }
+        // Build URL with query parameters
+        int? effectiveLimit = (limit.HasValue && !follow) ? limit.Value : null;
 
-        var url = DashboardUrls.TelemetrySpansApiUrl(baseUrl, resolvedResources, [.. additionalParams]);
+        var url = DashboardUrls.TelemetrySpansApiUrl(baseUrl, resolvedResources, traceId: traceId, hasError: hasError, limit: effectiveLimit, follow: follow ? true : null);
 
         _logger.LogDebug("Fetching spans from {Url}", url);
 
