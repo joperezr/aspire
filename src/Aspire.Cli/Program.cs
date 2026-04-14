@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using Aspire.Cli.Agents;
@@ -662,6 +663,13 @@ public class Program
             cts.Cancel();
             eventArgs.Cancel = true;
         };
+        using var sigTermRegistration = OperatingSystem.IsWindows()
+            ? null
+            : PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+            {
+                cts.Cancel();
+                context.Cancel = true;
+            });
 
         Console.OutputEncoding = Encoding.UTF8;
 
@@ -674,6 +682,10 @@ public class Program
         logger.LogInformation("Version: {Version}", AspireCliTelemetry.GetCliVersion());
         logger.LogInformation("Build ID: {BuildId}", AspireCliTelemetry.GetCliBuildId());
         logger.LogInformation("Working directory: {WorkingDirectory}", Environment.CurrentDirectory);
+        // Logging the log file path is useful so that when console logging is enabled (for example with --log-level debug),
+        // the path is written to the console logger (stderr) for easier discovery.
+        logger.LogInformation("Log file: {LogFilePath}", loggingOptions.LogFilePath);
+        logger.LogInformation("CLI process ID: {ProcessId}", Environment.ProcessId);
 
         IHost? app = null;
         try
