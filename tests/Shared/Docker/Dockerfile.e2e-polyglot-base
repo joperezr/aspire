@@ -1,4 +1,3 @@
-# DisableDockerDetector "E2E test container - not a production image"
 # Multi-stage Dockerfile for Aspire E2E testing (polyglot base variant).
 #
 # Includes: Docker CLI (via host socket mount), gh CLI,

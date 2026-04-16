@@ -1,4 +1,3 @@
-# DisableDockerDetector "E2E test container - not a production image"
 # Polyglot Dockerfile for Java AppHost E2E tests.
 # Extends the shared polyglot base with the JDK required by Java AppHosts.
 
