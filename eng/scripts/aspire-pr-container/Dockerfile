@@ -1,3 +1,4 @@
+# DisableDockerDetector "CI/test container for PR validation - not a production image"
 FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
