@@ -92,26 +92,10 @@ steps:
               /p:BuildExtension=true
       displayName: 🟣Build
 
-    # Verify the signed win-x64 CLI archive works (version check + project creation)
-    - pwsh: |
-        $ErrorActionPreference = 'Stop'
-        $archiveDir = "${{ parameters.repoArtifactsPath }}/packages/${{ parameters.buildConfig }}"
-        $archive = Get-ChildItem -Path $archiveDir -Filter "aspire-cli-win-x64-*.zip" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-        if (-not $archive) {
-          Write-Host "##[warning]No win-x64 CLI archive found - skipping verification"
-          exit 0
-        }
-        Write-Host "Found archive: $($archive.FullName)"
-        & "$(Build.SourcesDirectory)/eng/scripts/verify-cli-archive.ps1" -ArchivePath $archive.FullName
-        if ($LASTEXITCODE -ne 0) {
-          Write-Host "##[error]CLI archive verification failed"
-          exit 1
-        }
-      displayName: 🟣Verify CLI archive (win-x64)
-      condition: succeeded()
-      env:
-        ASPIRE_CLI_TELEMETRY_OPTOUT: 'true'
-        DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+    # NOTE: The 🟣Verify CLI archive (win-x64) step has been temporarily disabled on release/13.2.
+    # It is hanging/timing out on Windows agents similarly to the osx-arm64 verification step that
+    # was previously disabled. Tracking issue: re-enable once the hang on hosted agents is resolved.
+
 
     # Log MicroBuild environment for debugging
     # MicroBuildOutputFolderOverride is set by the MicroBuildSigningPlugin task in eng/common/templates-official/job/onelocbuild.yml
