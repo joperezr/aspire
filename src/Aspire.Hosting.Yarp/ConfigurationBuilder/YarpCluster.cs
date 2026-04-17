@@ -25,8 +25,23 @@ public class YarpCluster
     /// </summary>
     /// <param name="endpoint">The endpoint to target.</param>
     internal YarpCluster(EndpointReference endpoint)
-        : this(endpoint.Resource.Name, $"{endpoint.Scheme}://_{endpoint.EndpointName}.{endpoint.Resource.Name}")
+        : this(endpoint.Resource.Name, BuildEndpointTarget(endpoint))
     {
+    }
+
+    private static string BuildEndpointTarget(EndpointReference endpoint)
+    {
+        // For endpoints named "http" or "https", use standard resolution without
+        // the named endpoint prefix since the scheme key already matches the scheme.
+        // For all other endpoint names, use the named endpoint DNS-SD convention
+        // which .NET service discovery resolves via the endpoint name in the config key.
+        if (string.Equals(endpoint.EndpointName, "http", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(endpoint.EndpointName, "https", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{endpoint.Scheme}://{endpoint.Resource.Name}";
+        }
+
+        return $"{endpoint.Scheme}://_{endpoint.EndpointName}.{endpoint.Resource.Name}";
     }
 
     /// <summary>
