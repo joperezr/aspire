@@ -14,6 +14,11 @@ permissions:
   issues: read
   pull-requests: read
   discussions: read
+  # Bill Copilot model inference to the org via the built-in GITHUB_TOKEN
+  # instead of the COPILOT_GITHUB_TOKEN PAT. Requires the org "Allow use of
+  # Copilot CLI billed to the organization" policy.
+  # https://github.blog/changelog/2026-06-11-agentic-workflows-no-longer-need-a-personal-access-token/
+  copilot-requests: write
 
 network: defaults
 
