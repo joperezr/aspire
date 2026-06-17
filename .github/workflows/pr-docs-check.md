@@ -27,7 +27,7 @@ on:
 
 if: >-
   (github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch')
-  && github.repository_owner == 'microsoft'
+  && (github.repository_owner == 'microsoft' || github.repository_owner == 'joperezr')
 
 checkout:
   # Use aspire.dev as the current workspace because that is where documentation

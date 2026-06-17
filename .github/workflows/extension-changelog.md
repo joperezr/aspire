@@ -43,7 +43,7 @@ on:
 # secrets, so the GitHub App token mint (and therefore the agent and the
 # safe-output push) cannot succeed from a fork; the branch-prefix validation in
 # the body is a further guard.
-if: github.repository == 'microsoft/aspire'
+if: github.repository == 'microsoft/aspire' || github.repository == 'joperezr/aspire'
 
 # Serialize runs for the same PR so a duplicate label event can't race and
 # double-edit the changelog.

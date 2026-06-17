@@ -27,7 +27,7 @@ on:
   bots: [aspire-repo-bot]
 
 if: >-
-  github.repository == 'microsoft/aspire'
+  (github.repository == 'microsoft/aspire' || github.repository == 'joperezr/aspire')
   && (
     (github.event_name == 'release' && github.event.release.prerelease == false && github.event.release.draft == false)
     || github.event_name == 'workflow_dispatch'

@@ -316,7 +316,7 @@ jobs:
           name: changelog-data
           path: /tmp/gh-aw/
 
-if: github.repository_owner == 'microsoft' && needs.fetch-data.outputs.has-work == 'true'
+if: github.repository_owner == 'microsoft' || github.repository_owner == 'joperezr' && needs.fetch-data.outputs.has-work == 'true'
 
 permissions:
   contents: read
